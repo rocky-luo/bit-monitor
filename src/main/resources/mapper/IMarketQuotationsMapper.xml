@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rocky.bit.monitor.dao.IMarketQuotationsDao">
+    <insert id="insert">
+        insert into market_quotations (`id`, `symbol`, `ratio`, `ts`)
+        values( null, #{symbol}, #{ratio}, #{ts});
+    </insert>
+
+    <select id="getListByPeriod" resultType="com.rocky.bit.monitor.model.po.MarketQuotationsPo">
+        SELECT * FROM market_quotations WHERE ts BETWEEN #{start} and #{end} ORDER BY id
+    </select>
+</mapper>

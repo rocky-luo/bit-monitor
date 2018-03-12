@@ -4,12 +4,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
 
     <!--配置读取-->
@@ -40,14 +39,12 @@
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
         <property name="dataSource" ref="masterDataSource"/>
         <!-- 映射文件集合 -->
-        <!--TODO mapper 文件位置-->
         <property name="mapperLocations" value="classpath:mapper/*.xml"/>
 
     </bean>
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
-        <!--TODO 设置dao文件位置-->
-        <property name="basePackage" value="com.rocky.dao"/>
+        <property name="basePackage" value="com.rocky.bit.monitor.dao"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
 
@@ -60,10 +57,14 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- 对包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 -->
-    <!--TODO 设置注解扫描的包-->
-    <context:component-scan base-package="com.rocky">
+    <context:component-scan base-package="com.rocky.bit.monitor">
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
     <!--启用aop注解支持-->
     <aop:aspectj-autoproxy/>
+
+    <!--定时任务-->
+    <task:executor id="executor" pool-size="5" />
+    <task:scheduler id="scheduler" pool-size="10" />
+    <task:annotation-driven executor="executor" scheduler="scheduler" />
 </beans>
