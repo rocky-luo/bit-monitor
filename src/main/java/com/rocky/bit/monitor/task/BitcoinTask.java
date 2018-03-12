@@ -6,6 +6,7 @@ import com.rocky.bit.monitor.dao.IMarketQuotationsDao;
 import com.rocky.bit.monitor.model.po.MarketQuotationsPo;
 import com.rocky.bit.monitor.service.IExchange;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -42,7 +43,8 @@ public class BitcoinTask {
         MarketQuotationsPo po = new MarketQuotationsPo();
         po.setSymbol("btcusdt");
         po.setRatio(close);
-        po.setTs(new Date(ts));
+        DateTime beijing = new DateTime(ts).withZone(DateTimeZone.forID("Etc/GMT+8"));
+        po.setTs(beijing.toDate());
         marketQuotationsDao.insert(po);
         LOGGER.info("定时任务执行完成:" + res);
     }
