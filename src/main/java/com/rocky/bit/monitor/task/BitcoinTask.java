@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rocky.bit.monitor.dao.IMarketQuotationsDao;
 import com.rocky.bit.monitor.model.po.MarketQuotationsPo;
+import com.rocky.bit.monitor.service.ICommunicate;
 import com.rocky.bit.monitor.service.IExchange;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -30,6 +31,8 @@ public class BitcoinTask {
     private IExchange exchange;
     @Resource
     private IMarketQuotationsDao marketQuotationsDao;
+    @Resource
+    private ICommunicate communicate;
 
 
     @Scheduled(cron = "0 0/1 * * * ?")
@@ -69,8 +72,7 @@ public class BitcoinTask {
             warningFormat += "跌幅:%s";
             String warningMsg = String.format(warningFormat, maxOneDay.getRatio(), maxOneDay.getTs(),
                     lastPo.getRatio(), lastPo.getTs(), fallRatioPer);
-            // TODO: 18/3/12 通过某种通讯工具进行通知
-            LOGGER.warn(warningMsg);
+            communicate.sendTelegramMsg(warningMsg);
         }
 
 
