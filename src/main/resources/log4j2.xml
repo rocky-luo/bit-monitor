@@ -2,7 +2,7 @@
 <configuration status="off">
     <properties>
         <property name="pattern">[%-5p] %d{yy-MM-dd HH:mm:ss.SSS}[%c] %F -- %l %m %n</property>
-        <property name="fileLocation">/tmp/logs/${project.artifactId}/${project.artifactId}.log</property>
+        <property name="fileLocation">/var/log/${project.artifactId}/${project.artifactId}.log</property>
     </properties>
     <appenders>
         <Console name="stdout" target="SYSTEM_OUT">
