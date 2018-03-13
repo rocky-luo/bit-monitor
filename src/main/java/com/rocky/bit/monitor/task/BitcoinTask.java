@@ -51,7 +51,6 @@ public class BitcoinTask {
         DateTime beijing = new DateTime(ts).withZone(DateTimeZone.forID("Etc/GMT+8"));
         po.setTs(beijing.toDate());
         marketQuotationsDao.insert(po);
-        LOGGER.info("定时任务执行完成:" + res);
     }
 
 
