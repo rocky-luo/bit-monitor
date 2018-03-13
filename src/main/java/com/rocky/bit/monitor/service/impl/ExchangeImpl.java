@@ -60,6 +60,8 @@ public class ExchangeImpl implements IExchange{
         String signature = SHA256Util.encode(secretKey, signatureArg);
         reqParam.put("Signature", signature);
         String mergedData = HttpRequest.get("https://api.huobipro.com/market/detail/merged", reqParam, true)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36")
                 .body();
         return mergedData;
     }
