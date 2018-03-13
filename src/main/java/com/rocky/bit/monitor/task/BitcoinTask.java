@@ -6,7 +6,9 @@ import com.rocky.bit.monitor.dao.IMarketQuotationsDao;
 import com.rocky.bit.monitor.model.po.MarketQuotationsPo;
 import com.rocky.bit.monitor.service.ICommunicate;
 import com.rocky.bit.monitor.service.IExchange;
+import com.rocky.bit.monitor.utils.DateUtil;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +55,7 @@ public class BitcoinTask {
     }
 
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0 0/1 * * ?")
     public void fallWarning() {
         DateTime now = DateTime.now();
         DateTime twoDayBefore = now.minusDays(2);
@@ -64,14 +66,14 @@ public class BitcoinTask {
         MarketQuotationsPo maxOneDay = Collections.max(oneDayList, ratioComparator());
         MarketQuotationsPo lastPo = oneDayList.get(oneDayList.size() - 1);
         BigDecimal fallRatio = maxOneDay.getRatio().subtract(lastPo.getRatio()).divide(maxOneDay.getRatio(), 6, BigDecimal.ROUND_HALF_UP);
-        if (fallRatio.compareTo(BigDecimal.valueOf(0.01)) > 0) {
+        if (fallRatio.compareTo(BigDecimal.valueOf(0.10)) > 0) {
             String fallRatioPer = fallRatio.multiply(BigDecimal.valueOf(100)).setScale(2, BigDecimal.ROUND_HALF_UP).toString() + "%";
             String warningFormat = "[48小时大跌警报]:\n";
             warningFormat += "峰值(时间):%s(%s)\n";
             warningFormat += "当前(时间):%s(%s)\n";
             warningFormat += "跌幅:%s";
-            String warningMsg = String.format(warningFormat, maxOneDay.getRatio(), maxOneDay.getTs(),
-                    lastPo.getRatio(), lastPo.getTs(), fallRatioPer);
+            String warningMsg = String.format(warningFormat, maxOneDay.getRatio(), DateUtil.format(maxOneDay.getTs()),
+                    lastPo.getRatio(), DateUtil.format(lastPo.getTs()), fallRatioPer);
             communicate.sendTelegramMsg(warningMsg);
         }
 
