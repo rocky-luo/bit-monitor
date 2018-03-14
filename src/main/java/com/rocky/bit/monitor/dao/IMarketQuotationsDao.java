@@ -18,4 +18,6 @@ public interface IMarketQuotationsDao {
     List<MarketQuotationsPo> getListByPeriod(@Param("start") Date start,
                                              @Param("end") Date end);
 
+    MarketQuotationsPo latest();
+
 }

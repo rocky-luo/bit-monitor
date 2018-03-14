@@ -9,4 +9,8 @@
     <select id="getListByPeriod" resultType="com.rocky.bit.monitor.model.po.MarketQuotationsPo">
         SELECT * FROM market_quotations WHERE ts BETWEEN #{start} and #{end} ORDER BY id
     </select>
+
+    <select id="latest" resultType="com.rocky.bit.monitor.model.po.MarketQuotationsPo">
+        SELECT * FROM market_quotations ORDER BY id desc limit 1;
+    </select>
 </mapper>

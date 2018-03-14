@@ -6,6 +6,8 @@ import com.rocky.bit.monitor.dao.IMarketQuotationsDao;
 import com.rocky.bit.monitor.model.po.MarketQuotationsPo;
 import com.rocky.bit.monitor.service.ICommunicate;
 import com.rocky.bit.monitor.service.IExchange;
+import com.rocky.bit.monitor.service.IReport;
+import com.rocky.bit.monitor.utils.CompareUtil;
 import com.rocky.bit.monitor.utils.DateUtil;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
@@ -35,6 +37,8 @@ public class BitcoinTask {
     private IMarketQuotationsDao marketQuotationsDao;
     @Resource
     private ICommunicate communicate;
+    @Resource
+    private IReport report;
 
 
     @Scheduled(cron = "0 0/1 * * * ?")
@@ -54,7 +58,7 @@ public class BitcoinTask {
     }
 
 
-    @Scheduled(cron = "0 0 0/1 * * ?")
+    @Scheduled(cron = "0 0/10 * * * ?")
     public void fallWarning() {
         DateTime now = DateTime.now();
         DateTime twoDayBefore = now.minusDays(2);
@@ -62,7 +66,7 @@ public class BitcoinTask {
         if (CollectionUtils.isEmpty(oneDayList)) {
             return;
         }
-        MarketQuotationsPo maxOneDay = Collections.max(oneDayList, ratioComparator());
+        MarketQuotationsPo maxOneDay = Collections.max(oneDayList, CompareUtil.ratioComparator());
         MarketQuotationsPo lastPo = oneDayList.get(oneDayList.size() - 1);
         BigDecimal fallRatio = maxOneDay.getRatio().subtract(lastPo.getRatio()).divide(maxOneDay.getRatio(), 6, BigDecimal.ROUND_HALF_UP);
         if (fallRatio.compareTo(BigDecimal.valueOf(0.10)) > 0) {
@@ -75,19 +79,33 @@ public class BitcoinTask {
                     lastPo.getRatio(), DateUtil.format(lastPo.getTs()), fallRatioPer);
             communicate.sendTelegramMsg(warningMsg);
         }
+    }
 
-
+    @Scheduled(cron = "0 0 9,12,18,22 * * ?")
+    public void dynamicReport(){
+        DateTime now = DateTime.now();
+        DateTime oneDayBefore = now.minusDays(1);
+        MarketQuotationsPo max = report.maxBtcUsdtPrice(oneDayBefore, now);
+        MarketQuotationsPo min = report.minBtcUsdtPrice(oneDayBefore, now);
+        MarketQuotationsPo latest = report.latestBtcUsdtPrice();
+        communicate.sendTelegramMsg(formatMsg(max, min, latest));
     }
 
 
-    private Comparator<MarketQuotationsPo> ratioComparator() {
-        return new Comparator<MarketQuotationsPo>() {
-            @Override
-            public int compare(MarketQuotationsPo o1, MarketQuotationsPo o2) {
-                return o1.getRatio().compareTo(o2.getRatio());
-            }
-        };
-    }
 
+    private String formatMsg(MarketQuotationsPo max, MarketQuotationsPo min, MarketQuotationsPo latest) {
+        String template = "[动态播报]\n" +
+                "24小时内\n" +
+                "最新(时间):%s(%s)\n" +
+                "最高(时间):%s(%s)\n" +
+                "最低(时间):%s(%s)\n";
+        return String.format(template,latest.getRatio(), DateUtil.format(latest.getTs()),
+                max.getRatio(), DateUtil.format(max.getTs()),
+                min.getRatio(), DateUtil.format(min.getTs()));
+    }
+    @Scheduled(cron = "0 0 0/1 * * ?")
+    public void everyDayReport(){
+        DateTime now = DateTime.now();
+    }
 
 }
