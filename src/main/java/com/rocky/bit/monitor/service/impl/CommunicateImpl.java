@@ -14,7 +14,7 @@ public class CommunicateImpl implements ICommunicate{
     private final static Logger LOGGER = LoggerFactory.getLogger(CommunicateImpl.class);
     @Override
     public void sendTelegramMsg(String text) {
-        int code = HttpRequest.post("http://95.163.200.88:8459/message/telegram/chart/565906163")
+        int code = HttpRequest.post("http://95.163.200.88:8881/bit-notification/message/telegram/chart/565906163")
                 .header("Content-Type", "text/plain;charset=UTF-8")
                 .send(text)
                 .code();
